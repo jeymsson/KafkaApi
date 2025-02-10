@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using Telemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(option => {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "KafkaAPI", Version = "v1" });
 });
+
+// Configure logging, tracing and metrics
+BuilderOpenTelemetry.prepareBuilder(builder);
 
 var app = builder.Build();
 
@@ -44,6 +48,8 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+BuilderOpenTelemetry.prepareRunnerToTelemetry(app);
 
 app.Run();
 
