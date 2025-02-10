@@ -1,0 +1,31 @@
+services:
+  dk-webapplication:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: im-kafka_api
+    container_name: ct-kafkaapi
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Server=dk-sqlserver,1433;Database=master;User=sa;Password=SqlServer2019;TrustServerCertificate=True;
+      Hosts__Jaeger: jaeger-agent
+      Hosts__OTLP: otel-collector
+      OTLP__ConsoleExporter: true
+    ports:
+      - 5001:8080
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/ || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    networks:
+      - opentelemetry
+
+networks:
+  opentelemetry:
+    external: true
+
+volumes:
+  sqlserver-data:
+
